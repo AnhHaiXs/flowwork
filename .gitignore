@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+
+# Foundry build artifacts (can be regenerated via forge build)
+contracts/out/
+contracts/cache/
+
+# Foundry dependencies (managed by forge, not committed)
+lib/
+
+# Environment variables — NEVER commit secrets
+.env
+.env.local
+.env.*.local
+
+# Circle credentials
+.circle/
+*recovery_file*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/tmp/
+
+# Bun
+.bun/
+
+# TypeScript
+*.tsbuildinfo
