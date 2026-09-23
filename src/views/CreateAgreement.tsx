@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { Plus, Trash2, AlertCircle, ExternalLink, Info, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { erc20Abi, parseUnits } from 'viem'
@@ -14,12 +14,12 @@ import { TokenUSDC } from '@web3icons/react'
 
 interface CreateAgreementProps {
   onNav: (v: AppView) => void
-  onCreated: (id: bigint) => void
+  onCreated?: (id: bigint) => void
 }
 
 const EMPTY_MILESTONE = { title: '', amount: '' }
 
-export function CreateAgreement({ onNav, onCreated }: CreateAgreementProps) {
+export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreementProps) {
   const { address } = useAccount()
   const isDeployed = useIsDeployed()
 
@@ -28,11 +28,11 @@ export function CreateAgreement({ onNav, onCreated }: CreateAgreementProps) {
   const [title, setTitle] = useState('')
   const [deadline, setDeadline] = useState('')
   const [milestones, setMilestones] = useState([{ ...EMPTY_MILESTONE }, { ...EMPTY_MILESTONE }])
-  const [step, setStep] = useState<'form' | 'approve' | 'create'>('form')
+  const [, setStep] = useState<'form' | 'approve' | 'create'>('form')
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>()
 
-  const { data: usdcBalance } = useUsdcBalance(address as `0x${string}` | undefined)
-  const { data: allowance, refetch: refetchAllowance } = useUsdcAllowance(address as `0x${string}` | undefined)
+  const { data: usdcBalance } = useUsdcBalance(address)
+  const { data: allowance, refetch: refetchAllowance } = useUsdcAllowance(address)
 
   // Computed totals
   const totalRaw = milestones.reduce((sum, m) => {
@@ -41,8 +41,8 @@ export function CreateAgreement({ onNav, onCreated }: CreateAgreementProps) {
   }, 0)
   const totalParsed = parseUnits(totalRaw.toFixed(6), USDC_DECIMALS)
 
-  const hasEnoughBalance = usdcBalance !== undefined && (usdcBalance as bigint) >= totalParsed
-  const hasEnoughAllowance = allowance !== undefined && (allowance as bigint) >= totalParsed
+  const hasEnoughBalance = usdcBalance !== undefined && (usdcBalance) >= totalParsed
+  const hasEnoughAllowance = allowance !== undefined && (allowance) >= totalParsed
   const needsApproval = totalParsed > 0n && !hasEnoughAllowance
 
   // ── Approve USDC ──────────────────────────────────────────────
@@ -69,10 +69,8 @@ export function CreateAgreement({ onNav, onCreated }: CreateAgreementProps) {
     if (isCreateSuccess && createReceipt) {
       // Find the AgreementCreated event and extract the id
       // The first topic of the event is the signature, second is the indexed `id`
-      const eventSig = '0x' // We'll just navigate to agreements list and refresh
       toast.success('Agreement created successfully!')
       setTxHash(createHash)
-      // Navigate to agreements list (will show the new one)
       setTimeout(() => onNav('agreements'), 2000)
     }
   }, [isCreateSuccess])
@@ -325,7 +323,7 @@ export function CreateAgreement({ onNav, onCreated }: CreateAgreementProps) {
               >
                 <AlertCircle className="size-4 flex-shrink-0" style={{ color: 'var(--danger)' }} />
                 <p className="text-xs" style={{ color: 'var(--danger)' }}>
-                  Insufficient balance — you have {formatUsdc(usdcBalance as bigint)} USDC. Get test USDC from the sidebar.
+                  Insufficient balance — you have {formatUsdc(usdcBalance)} USDC. Get test USDC from the sidebar.
                 </p>
               </div>
             )}

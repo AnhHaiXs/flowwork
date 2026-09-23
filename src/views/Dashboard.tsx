@@ -1,11 +1,11 @@
 import { useAccount } from 'wagmi'
-import { PlusCircle, FileText, TrendingUp, Clock } from 'lucide-react'
+import { PlusCircle, FileText, Clock } from 'lucide-react'
 import { AppView } from '@/types'
 import { WalletGate } from '@/components/WalletGate'
 import { AgreementCard } from '@/components/AgreementCard'
 import { EmptyState } from '@/components/EmptyState'
 import { useClientAgreements, useContributorAgreements, useAgreements, useUsdcBalance, useIsDeployed } from '@/hooks/useFlowWork'
-import { formatUsdc, progressPercent } from '@/utils'
+import { formatUsdc } from '@/utils'
 import { TokenUSDC } from '@web3icons/react'
 
 interface DashboardProps {
@@ -17,14 +17,14 @@ export function Dashboard({ onNav, onSelectAgreement }: DashboardProps) {
   const { address } = useAccount()
   const isDeployed = useIsDeployed()
 
-  const { data: clientIds = [] } = useClientAgreements(address as `0x${string}` | undefined)
-  const { data: contributorIds = [] } = useContributorAgreements(address as `0x${string}` | undefined)
+  const { data: clientIds = [] } = useClientAgreements(address)
+  const { data: contributorIds = [] } = useContributorAgreements(address)
 
   // Combine and deduplicate agreement IDs
   const allIds = [...new Set([...(clientIds as bigint[]), ...(contributorIds as bigint[])])]
 
   const { data: agreements = [] } = useAgreements(allIds)
-  const { data: usdcBalance } = useUsdcBalance(address as `0x${string}` | undefined)
+  const { data: usdcBalance } = useUsdcBalance(address)
 
   // Stats
   const activeCount = agreements.filter((a) => a.status === 1).length
@@ -89,7 +89,7 @@ export function Dashboard({ onNav, onSelectAgreement }: DashboardProps) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             label="USDC Balance"
-            value={usdcBalance !== undefined ? formatUsdc(usdcBalance as bigint) : '—'}
+            value={usdcBalance !== undefined ? formatUsdc(usdcBalance) : '—'}
             sub="in your wallet"
             accent
           />

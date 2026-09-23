@@ -1,4 +1,3 @@
-import { AgreementStatus, MilestoneStatus } from './types'
 import { USDC_DECIMALS } from './contract'
 
 // ── Address formatting ────────────────────────────────────────────

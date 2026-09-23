@@ -21,8 +21,8 @@ export function AgreementList({ onNav, onSelectAgreement }: AgreementListProps) 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [search, setSearch] = useState('')
 
-  const { data: clientIds = [], refetch: refetchClient } = useClientAgreements(address as `0x${string}` | undefined)
-  const { data: contributorIds = [], refetch: refetchContributor } = useContributorAgreements(address as `0x${string}` | undefined)
+  const { data: clientIds = [] } = useClientAgreements(address)
+  const { data: contributorIds = [] } = useContributorAgreements(address)
 
   const idsForTab: bigint[] =
     tab === 'as-client'

@@ -200,6 +200,8 @@ contract FlowWork is ReentrancyGuard {
 
         pendingWithdrawals[agreement.contributor] += milestone.amount;
 
+        emit MilestoneApproved(agreementId, milestoneIndex, milestone.amount);
+
         if (_allMilestonesApproved(agreementId)) {
             agreement.status = AgreementStatus.Completed;
             emit AgreementCompleted(agreementId);
@@ -207,8 +209,6 @@ contract FlowWork is ReentrancyGuard {
             // Return to active flow after arbiter resolves this milestone.
             agreement.status = AgreementStatus.Active;
         }
-
-        emit MilestoneApproved(agreementId, milestoneIndex, milestone.amount);
     }
 
     function disputeMilestone(uint256 agreementId, uint256 milestoneIndex) external {
@@ -265,6 +265,7 @@ contract FlowWork is ReentrancyGuard {
 
     function withdraw() external nonReentrant {
         uint256 amount = pendingWithdrawals[msg.sender];
+        require(amount > 0, "FlowWork: nothing to withdraw");
         pendingWithdrawals[msg.sender] = 0;
 
         usdc.safeTransfer(msg.sender, amount);

@@ -1,4 +1,4 @@
-# [App Name]
+# FlowWork
 
 > Built with Arc Studio - money-powered apps in minutes
 
@@ -8,7 +8,15 @@ This is the **project memory** - what Arc Studio remembers about building this a
 
 ## What This App Does
 
-[Brief description of what the app does and its primary use case]
+FlowWork is an onchain freelance escrow platform. A client locks USDC in escrow, defines up to 5 milestones with individual amounts, and a contributor accepts the agreement and submits delivery hashes onchain for each milestone. The client approves each milestone to release USDC to the contributor. Disputes are resolved by an optional arbiter; a 30-day force-close timeout protects against arbiter inaction.
+
+## Deployed Contracts
+
+| Contract | Network | Address | Explorer |
+|---|---|---|---|
+| FlowWork | Arc Testnet | `0x7bde6df4d2f103b69d1f4ae10f8f0f743a424ce7` | [View](https://explorer.testnet.arc.io/address/0x7bde6df4d2f103b69d1f4ae10f8f0f743a424ce7) |
+
+Constructor arg: `usdcToken = 0x3600000000000000000000000000000000000000` (USDC on Arc Testnet)
 
 ## Tech Stack
 

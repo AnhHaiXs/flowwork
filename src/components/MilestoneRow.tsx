@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { CheckCircle2, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, Send, Link } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, Link } from 'lucide-react'
 import { toast } from 'sonner'
 import { Agreement, Milestone, AgreementStatus, MilestoneStatus } from '@/types'
 import { MilestoneBadge } from './StatusBadge'
@@ -76,8 +76,7 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
       className="rounded-xl border overflow-hidden"
       style={{
         background: 'var(--surface)',
-        borderColor: milestone.status === MilestoneStatus.Disputed ? 'var(--danger)' : milestone.status === MilestoneStatus.Approved ? 'var(--success)' : 'var(--border)',
-        borderOpacity: milestone.status === MilestoneStatus.Disputed || milestone.status === MilestoneStatus.Approved ? 0.4 : 1,
+        borderColor: milestone.status === MilestoneStatus.Disputed ? 'rgba(186,43,76,0.4)' : milestone.status === MilestoneStatus.Approved ? 'rgba(26,128,71,0.4)' : 'var(--border)',
       }}
     >
       {/* Header row */}

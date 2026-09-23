@@ -1,4 +1,5 @@
 import { useReadContract, useReadContracts } from 'wagmi'
+import type { Abi } from 'viem'
 import { FLOWWORK_ABI, FLOWWORK_ADDRESS, ARC_TESTNET_CHAIN_ID } from '@/contract'
 import { Agreement, AgreementStatus, Milestone, MilestoneStatus } from '@/types'
 
@@ -113,8 +114,8 @@ export function useMilestones(agreementId: bigint | undefined) {
 export function useAgreements(ids: readonly bigint[]) {
   const deployed = useIsDeployed()
   const contracts = ids.map((id) => ({
-    address: FLOWWORK_ADDRESS as `0x${string}`,
-    abi: FLOWWORK_ABI,
+    address: FLOWWORK_ADDRESS,
+    abi: FLOWWORK_ABI as Abi,
     functionName: 'getAgreement' as const,
     args: [id] as const,
     chainId: ARC_TESTNET_CHAIN_ID,
@@ -146,6 +147,19 @@ export function useUsdcBalance(address: `0x${string}` | undefined) {
     args: address ? [address] : undefined,
     chainId: ARC_TESTNET_CHAIN_ID,
     query: { enabled: !!address && !!usdcFact },
+  })
+}
+
+// ── Pending withdrawals ───────────────────────────────────────────
+export function usePendingWithdrawals(address: `0x${string}` | undefined) {
+  const deployed = useIsDeployed()
+  return useReadContract({
+    address: FLOWWORK_ADDRESS,
+    abi: FLOWWORK_ABI,
+    functionName: 'pendingWithdrawals',
+    args: address ? [address] : undefined,
+    chainId: ARC_TESTNET_CHAIN_ID,
+    query: { enabled: deployed && !!address },
   })
 }
 

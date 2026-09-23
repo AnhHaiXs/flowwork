@@ -18,7 +18,7 @@ interface AgreementDetailProps {
   onNav: (v: AppView) => void
 }
 
-export function AgreementDetail({ agreementId, onBack, onNav }: AgreementDetailProps) {
+export function AgreementDetail({ agreementId, onBack, onNav: _onNav }: AgreementDetailProps) {
   const { address } = useAccount()
 
   const { data: agreement, refetch: refetchAgreement, isLoading } = useAgreement(agreementId)

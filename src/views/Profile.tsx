@@ -1,12 +1,14 @@
-import { useAccount } from 'wagmi'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ConnectKitButton } from 'connectkit'
 import { ExternalLink, Copy, CheckCheck } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { WalletGate } from '@/components/WalletGate'
-import { useClientAgreements, useContributorAgreements, useAgreements, useUsdcBalance } from '@/hooks/useFlowWork'
-import { formatAddress, formatUsdc } from '@/utils'
+import { useClientAgreements, useContributorAgreements, useAgreements, useUsdcBalance, usePendingWithdrawals } from '@/hooks/useFlowWork'
+import { TxButton } from '@/components/TxButton'
+import { formatAddress, formatUsdc, parseOnchainError } from '@/utils'
 import { buildAddressExplorerUrl } from '@/onchain-facts'
-import { ARC_TESTNET_CHAIN_ID } from '@/contract'
+import { ARC_TESTNET_CHAIN_ID, FLOWWORK_ABI, FLOWWORK_ADDRESS } from '@/contract'
 import { AgreementStatus } from '@/types'
 import { TokenUSDC } from '@web3icons/react'
 import { AgreementBadge } from '@/components/StatusBadge'
@@ -15,11 +17,20 @@ export function Profile() {
   const { address } = useAccount()
   const [copied, setCopied] = useState(false)
 
-  const { data: clientIds = [] } = useClientAgreements(address as `0x${string}` | undefined)
-  const { data: contributorIds = [] } = useContributorAgreements(address as `0x${string}` | undefined)
+  const { data: clientIds = [] } = useClientAgreements(address)
+  const { data: contributorIds = [] } = useContributorAgreements(address)
   const allIds = [...new Set([...(clientIds as bigint[]), ...(contributorIds as bigint[])])]
   const { data: agreements = [] } = useAgreements(allIds)
-  const { data: usdcBalance } = useUsdcBalance(address as `0x${string}` | undefined)
+  const { data: usdcBalance } = useUsdcBalance(address)
+  const { data: pendingAmount, refetch: refetchPending } = usePendingWithdrawals(address)
+  const hasPending = pendingAmount !== undefined && (pendingAmount) > 0n
+
+  // Withdraw
+  const { writeContract: doWithdraw, data: withdrawHash, isPending: isWithdrawPending, error: withdrawError } = useWriteContract()
+  const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawSuccess } = useWaitForTransactionReceipt({ hash: withdrawHash })
+
+  if (isWithdrawSuccess) { toast.success('USDC withdrawn to your wallet!'); refetchPending() }
+  if (withdrawError) toast.error(parseOnchainError(withdrawError))
 
   // Reputation metrics
   const completedAsContributor = agreements.filter(
@@ -95,10 +106,43 @@ export function Profile() {
               <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>USDC Balance</span>
             </div>
             <span className="display text-lg font-700 tabular-nums" style={{ color: 'var(--ink)' }}>
-              {usdcBalance !== undefined ? formatUsdc(usdcBalance as bigint) : '—'}
+              {usdcBalance !== undefined ? formatUsdc(usdcBalance) : '—'}
             </span>
           </div>
         </div>
+
+        {/* Pending withdrawals */}
+        {hasPending && (
+          <div
+            className="rounded-2xl border p-4 flex items-center justify-between gap-4"
+            style={{ background: 'rgba(26,128,71,0.06)', borderColor: 'rgba(26,128,71,0.3)' }}
+          >
+            <div>
+              <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--ink)' }}>
+                USDC available to withdraw
+              </p>
+              <div className="flex items-center gap-1">
+                <TokenUSDC variant="branded" size={14} />
+                <span className="display text-xl font-700 tabular-nums" style={{ color: 'var(--success)', letterSpacing: '-0.02em' }}>
+                  {formatUsdc(pendingAmount)}
+                </span>
+                <span className="text-sm" style={{ color: 'var(--subtle)' }}>USDC</span>
+              </div>
+            </div>
+            <TxButton
+              label="Withdraw"
+              isPending={isWithdrawPending}
+              isConfirming={isWithdrawConfirming}
+              onClick={() => doWithdraw({
+                address: FLOWWORK_ADDRESS,
+                abi: FLOWWORK_ABI,
+                functionName: 'withdraw',
+                args: [],
+                chainId: ARC_TESTNET_CHAIN_ID,
+              })}
+            />
+          </div>
+        )}
 
         {/* Reputation */}
         <div
