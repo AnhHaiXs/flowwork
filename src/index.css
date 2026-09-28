@@ -31,11 +31,54 @@
   --status-review: #b45309;
   --status-review-bg: rgba(180, 83, 9, 0.10);
   --status-complete-bg: rgba(26, 128, 71, 0.10);
+
+  /* Theme transition */
+  --theme-transition: background 0.22s ease, color 0.22s ease,
+    border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+/* ── Arc Dark tokens ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --bg-gradient: linear-gradient(180deg, #0d1117 0%, #111720 52%, #131a24 100%);
+  --surface: rgba(22, 30, 42, 0.80);
+  --surface-strong: rgba(30, 40, 56, 0.95);
+  --surface-muted: #1a2233;
+  --ink: #e8edf4;
+  --ink-2: #b8c5d6;
+  --muted: #8898aa;
+  --subtle: #6b7a8d;
+  --border: rgba(232, 237, 244, 0.10);
+  --border-strong: rgba(232, 237, 244, 0.28);
+  --accent: #4a9eff;
+  --accent-hover: #70b5ff;
+  --focus: #4a9eff;
+  --success: #34c472;
+  --danger: #f4607a;
+  --warning: #f59e42;
+
+  /* Status colours — dark */
+  --status-open: #4a9eff;
+  --status-open-bg: rgba(74, 158, 255, 0.12);
+  --status-active: #34c472;
+  --status-active-bg: rgba(52, 196, 114, 0.12);
+  --status-disputed-bg: rgba(244, 96, 122, 0.12);
+  --status-review: #f59e42;
+  --status-review-bg: rgba(245, 158, 66, 0.12);
+  --status-complete-bg: rgba(52, 196, 114, 0.12);
 }
 
 /* ── Base ───────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
+  transition: var(--theme-transition);
+}
+
+/* Don't animate transforms/opacity — only colors */
+*, *::before, *::after {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke;
+  transition-duration: 0.22s;
+  transition-timing-function: ease;
 }
 
 html {
@@ -83,6 +126,27 @@ body {
 .input-field:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(18, 45, 69, 0.08);
+}
+
+/* ── Input dark mode ────────────────────────────────────────────── */
+[data-theme="dark"] .input-field {
+  background: var(--surface-strong);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.14);
+}
+
+/* ── Layout chrome — dark overrides ────────────────────────────── */
+[data-theme="dark"] .fw-topbar {
+  background: rgba(13, 17, 23, 0.88) !important;
+}
+
+[data-theme="dark"] .fw-mobile-nav {
+  background: rgba(13, 17, 23, 0.96) !important;
 }
 
 /* ── Scrollbar ──────────────────────────────────────────────────── */

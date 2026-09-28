@@ -1,12 +1,22 @@
 import { useReadContract, useReadContracts } from 'wagmi'
 import type { Abi } from 'viem'
 import { FLOWWORK_ABI, FLOWWORK_ADDRESS, ARC_TESTNET_CHAIN_ID } from '@/contract'
-import { Agreement, AgreementStatus, Milestone, MilestoneStatus } from '@/types'
+import type { Agreement, Milestone } from '@/types'
 
 // ── Raw contract tuple → typed structs ───────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toAgreement(raw: any): Agreement | null {
+type RawAgreement = {
+  id: bigint; client: `0x${string}`; contributor: `0x${string}`; arbiter: `0x${string}`
+  totalAmount: bigint; releasedAmount: bigint; status: number
+  createdAt: bigint; updatedAt: bigint; title: string; milestoneCount: bigint; deadline: bigint
+}
+
+type RawMilestone = {
+  id: bigint; agreementId: bigint; title: string; amount: bigint; status: number
+  deliveryHash: `0x${string}`; submittedAt: bigint; approvedAt: bigint
+}
+
+function toAgreement(raw: RawAgreement | undefined | null): Agreement | null {
   if (!raw || raw.id === undefined) return null
   return {
     id: raw.id,
@@ -15,7 +25,7 @@ function toAgreement(raw: any): Agreement | null {
     arbiter: raw.arbiter,
     totalAmount: raw.totalAmount,
     releasedAmount: raw.releasedAmount,
-    status: raw.status as AgreementStatus,
+    status: raw.status,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
     title: raw.title,
@@ -24,15 +34,14 @@ function toAgreement(raw: any): Agreement | null {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toMilestone(raw: any): Milestone | null {
+function toMilestone(raw: RawMilestone | undefined | null): Milestone | null {
   if (!raw || raw.id === undefined) return null
   return {
     id: raw.id,
     agreementId: raw.agreementId,
     title: raw.title,
     amount: raw.amount,
-    status: raw.status as MilestoneStatus,
+    status: raw.status,
     deliveryHash: raw.deliveryHash,
     submittedAt: raw.submittedAt,
     approvedAt: raw.approvedAt,
@@ -106,7 +115,7 @@ export function useMilestones(agreementId: bigint | undefined) {
     chainId: ARC_TESTNET_CHAIN_ID,
     query: { enabled: deployed && agreementId !== undefined },
   })
-  const milestones = Array.isArray(data) ? (data as unknown[]).map(toMilestone).filter(Boolean) as Milestone[] : []
+  const milestones = Array.isArray(data) ? (data as RawMilestone[]).map(toMilestone).filter(Boolean) as Milestone[] : []
   return { data: milestones, ...rest }
 }
 
@@ -127,7 +136,7 @@ export function useAgreements(ids: readonly bigint[]) {
   })
 
   const agreements = (data ?? [])
-    .map((r) => (r.status === 'success' ? toAgreement(r.result) : null))
+    .map((r) => (r.status === 'success' ? toAgreement(r.result as RawAgreement) : null))
     .filter(Boolean) as Agreement[]
 
   return { data: agreements, ...rest }

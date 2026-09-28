@@ -39,14 +39,14 @@ export function AgreementDetail({ agreementId, onBack, onNav: _onNav }: Agreemen
   const { writeContract: cancelAgreement, data: cancelHash, isPending: isCancelPending, error: cancelError } = useWriteContract()
   const { isLoading: isCancelConfirming, isSuccess: isCancelSuccess } = useWaitForTransactionReceipt({ hash: cancelHash })
 
-  if (isAcceptSuccess) { toast.success('Agreement accepted — start delivering!'); refetchAgreement() }
-  if (isCancelSuccess) { toast.success('Agreement cancelled — USDC refunded'); refetchAgreement() }
+  if (isAcceptSuccess) { toast.success('Agreement accepted — start delivering!'); void refetchAgreement() }
+  if (isCancelSuccess) { toast.success('Agreement cancelled — USDC refunded'); void refetchAgreement() }
   if (acceptError) toast.error(parseOnchainError(acceptError))
   if (cancelError) toast.error(parseOnchainError(cancelError))
 
   function handleRefresh() {
-    refetchAgreement()
-    refetchMilestones()
+    void refetchAgreement()
+    void refetchMilestones()
   }
 
   if (isLoading) {

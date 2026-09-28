@@ -1,6 +1,24 @@
-import { LayoutDashboard, FileText, PlusCircle, User } from 'lucide-react'
+import { LayoutDashboard, FileText, PlusCircle, User, Sun, Moon } from 'lucide-react'
 import { ConnectKitButton } from 'connectkit'
 import { AppView } from '@/types'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { useTheme } from '@/hooks/useTheme'
+
+function MobileThemeToggleSlot() {
+  const { theme, toggle } = useTheme()
+  const isDark = theme === 'dark'
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="flex-1 flex flex-col items-center justify-center gap-0.5"
+      style={{ color: 'var(--subtle)' }}
+    >
+      {isDark ? <Sun className="size-5" strokeWidth={2} /> : <Moon className="size-5" strokeWidth={2} />}
+      <span className="text-xs font-medium">{isDark ? 'Light' : 'Dark'}</span>
+    </button>
+  )
+}
 
 interface LayoutProps {
   children: React.ReactNode
@@ -20,7 +38,7 @@ export function Layout({ children, view, onNav }: LayoutProps) {
     <div className="min-h-dvh" style={{ background: 'var(--bg-gradient)' }}>
       {/* ── Top bar ────────────────────────────────────────── */}
       <header
-        className="sticky top-0 z-40 border-b"
+        className="fw-topbar sticky top-0 z-40 border-b"
         style={{
           background: 'rgba(255,255,255,0.82)',
           backdropFilter: 'blur(20px) saturate(180%)',
@@ -65,16 +83,17 @@ export function Layout({ children, view, onNav }: LayoutProps) {
             ))}
           </nav>
 
-          {/* Right: connect + new */}
+          {/* Right: theme toggle + connect + new */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => onNav('create')}
               className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-semibold text-white"
-              style={{ background: 'var(--accent)' }}
+              style={{ background: 'var(--accent)', transition: 'background 0.22s ease' }}
             >
               <PlusCircle className="size-4" />
               New
             </button>
+            <ThemeToggle compact />
             <ConnectKitButton />
           </div>
         </div>
@@ -85,7 +104,7 @@ export function Layout({ children, view, onNav }: LayoutProps) {
 
       {/* ── Mobile bottom nav ──────────────────────────────── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 md:hidden border-t z-40"
+        className="fw-mobile-nav fixed bottom-0 left-0 right-0 md:hidden border-t z-40"
         style={{
           background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(20px)',
@@ -98,7 +117,7 @@ export function Layout({ children, view, onNav }: LayoutProps) {
             <button
               key={v}
               onClick={() => onNav(v)}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors"
+              className="flex-1 flex flex-col items-center justify-center gap-0.5"
               style={{
                 color:
                   view === v || (view === 'detail' && v === 'agreements')
@@ -110,6 +129,8 @@ export function Layout({ children, view, onNav }: LayoutProps) {
               <span className="text-xs font-medium">{label}</span>
             </button>
           ))}
+          {/* Theme toggle slot — rendered as a nav-style item on mobile */}
+          <MobileThemeToggleSlot />
         </div>
       </nav>
     </div>

@@ -1,6 +1,6 @@
 import { useAccount } from 'wagmi'
 import { PlusCircle, FileText, Clock } from 'lucide-react'
-import { AppView } from '@/types'
+import { AppView, AgreementStatus } from '@/types'
 import { WalletGate } from '@/components/WalletGate'
 import { AgreementCard } from '@/components/AgreementCard'
 import { EmptyState } from '@/components/EmptyState'
@@ -27,10 +27,10 @@ export function Dashboard({ onNav, onSelectAgreement }: DashboardProps) {
   const { data: usdcBalance } = useUsdcBalance(address)
 
   // Stats
-  const activeCount = agreements.filter((a) => a.status === 1).length
-  const completedCount = agreements.filter((a) => a.status === 2).length
+  const activeCount = agreements.filter((a) => a.status === AgreementStatus.Active).length
+  const completedCount = agreements.filter((a) => a.status === AgreementStatus.Completed).length
   const totalEscrowed = agreements
-    .filter((a) => a.status === 0 || a.status === 1)
+    .filter((a) => a.status === AgreementStatus.Open || a.status === AgreementStatus.Active)
     .reduce((sum, a) => sum + a.totalAmount - a.releasedAmount, 0n)
 
   const recentAgreements = agreements

@@ -29,7 +29,7 @@ export function Profile() {
   const { writeContract: doWithdraw, data: withdrawHash, isPending: isWithdrawPending, error: withdrawError } = useWriteContract()
   const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawSuccess } = useWaitForTransactionReceipt({ hash: withdrawHash })
 
-  if (isWithdrawSuccess) { toast.success('USDC withdrawn to your wallet!'); refetchPending() }
+  if (isWithdrawSuccess) { toast.success('USDC withdrawn to your wallet!'); void refetchPending() }
   if (withdrawError) toast.error(parseOnchainError(withdrawError))
 
   // Reputation metrics
@@ -51,7 +51,7 @@ export function Profile() {
 
   function handleCopy() {
     if (!address) return
-    navigator.clipboard.writeText(address)
+    void navigator.clipboard.writeText(address)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { Plus, Trash2, AlertCircle, ExternalLink, Info, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
@@ -28,8 +28,9 @@ export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreemen
   const [title, setTitle] = useState('')
   const [deadline, setDeadline] = useState('')
   const [milestones, setMilestones] = useState([{ ...EMPTY_MILESTONE }, { ...EMPTY_MILESTONE }])
-  const [, setStep] = useState<'form' | 'approve' | 'create'>('form')
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>()
+  // Compute once — useMemo with empty deps is stable across renders
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const minDeadlineDate = useMemo(() => new Date(Date.now() + 86400000).toISOString().split('T')[0], [])
 
   const { data: usdcBalance } = useUsdcBalance(address)
   const { data: allowance, refetch: refetchAllowance } = useUsdcAllowance(address)
@@ -52,10 +53,9 @@ export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreemen
   useEffect(() => {
     if (isApproveSuccess) {
       toast.success('USDC approved')
-      refetchAllowance()
-      setStep('create')
+      void refetchAllowance()
     }
-  }, [isApproveSuccess])
+  }, [isApproveSuccess, refetchAllowance])
 
   useEffect(() => {
     if (approveError) toast.error(parseOnchainError(approveError))
@@ -65,15 +65,15 @@ export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreemen
   const { writeContract: createAgreement, data: createHash, isPending: isCreatePending, error: createError } = useWriteContract()
   const { isLoading: isCreateConfirming, isSuccess: isCreateSuccess, data: createReceipt } = useWaitForTransactionReceipt({ hash: createHash })
 
+  // Derive txHash after success — avoids useState-in-effect
+  const txHash = isCreateSuccess ? createHash : undefined
+
   useEffect(() => {
     if (isCreateSuccess && createReceipt) {
-      // Find the AgreementCreated event and extract the id
-      // The first topic of the event is the signature, second is the indexed `id`
       toast.success('Agreement created successfully!')
-      setTxHash(createHash)
       setTimeout(() => onNav('agreements'), 2000)
     }
-  }, [isCreateSuccess])
+  }, [isCreateSuccess, createReceipt, onNav])
 
   useEffect(() => {
     if (createError) toast.error(parseOnchainError(createError))
@@ -105,7 +105,6 @@ export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreemen
       args: [FLOWWORK_ADDRESS, totalParsed],
       chainId: ARC_TESTNET_CHAIN_ID,
     })
-    setStep('approve')
   }
 
   function handleCreate() {
@@ -127,7 +126,6 @@ export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreemen
       ],
       chainId: ARC_TESTNET_CHAIN_ID,
     })
-    setStep('create')
   }
 
   return (
@@ -209,7 +207,7 @@ export function CreateAgreement({ onNav, onCreated: _onCreated }: CreateAgreemen
                   type="date"
                   className="input-field"
                   value={deadline}
-                  min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+                  min={minDeadlineDate}
                   onChange={(e) => setDeadline(e.target.value)}
                 />
               </Field>
