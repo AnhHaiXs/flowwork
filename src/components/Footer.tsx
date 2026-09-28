@@ -55,7 +55,7 @@ export function Footer({ onNav }: FooterProps) {
                 <Github className="size-4" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://x.com/AnhHaixs"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter / X"
