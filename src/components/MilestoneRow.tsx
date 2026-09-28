@@ -21,6 +21,8 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
   const { address } = useAccount()
   const [expanded, setExpanded] = useState(false)
   const [deliveryInput, setDeliveryInput] = useState('')
+  // Optimistic: keep the submitted value visible while tx is confirming
+  const [submittedValue, setSubmittedValue] = useState('')
 
   const isClient = agreement.client.toLowerCase() === address?.toLowerCase()
   const isContributor = agreement.contributor.toLowerCase() === address?.toLowerCase()
@@ -69,6 +71,7 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
   function handleSubmit() {
     if (!isValidDeliveryHash(deliveryInput)) return
     const hash = encodeDeliveryHash(deliveryInput)
+    setSubmittedValue(deliveryInput)  // keep value visible during confirmation
     setDeliveryInput('')
     submitDelivery({
       address: FLOWWORK_ADDRESS,
@@ -137,7 +140,31 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
       {expanded && (
         <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--border)' }}>
           <div className="pt-3 space-y-3">
-            {/* Delivery hash (if submitted) */}
+
+            {/* ── Submission pending / confirming feedback ─── */}
+            {(isSubmitPending || isSubmitConfirming) && !isSubmitSuccess && (
+              <div
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5"
+                style={{ background: 'rgba(74,158,255,0.08)', border: '1px solid rgba(74,158,255,0.2)' }}
+              >
+                <div
+                  className="size-4 rounded-full border-2 border-transparent flex-shrink-0 animate-spin"
+                  style={{ borderTopColor: 'var(--accent)' }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium" style={{ color: 'var(--ink)' }}>
+                    {isSubmitPending ? 'Waiting for wallet confirmation…' : 'Submitting onchain…'}
+                  </p>
+                  {submittedValue && (
+                    <p className="mono text-xs truncate mt-0.5" style={{ color: 'var(--muted)' }}>
+                      {submittedValue}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Delivery hash (confirmed onchain) ──────── */}
             {hasDelivery && (
               <div
                 className="flex items-start gap-2 rounded-lg px-3 py-2.5"
@@ -145,7 +172,7 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
               >
                 <Link className="size-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--muted)' }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs mb-0.5" style={{ color: 'var(--subtle)' }}>Delivery hash (onchain)</p>
+                  <p className="text-xs mb-0.5" style={{ color: 'var(--subtle)' }}>Delivery proof (onchain)</p>
                   <p className="mono text-xs break-all" style={{ color: 'var(--ink)' }}>
                     {deliveryHashHex}
                   </p>
@@ -158,19 +185,19 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
               </div>
             )}
 
-            {/* Approved timestamp */}
+            {/* ── Approved timestamp ──────────────────────── */}
             {milestone.status === MilestoneStatus.Approved && milestone.approvedAt > 0n && (
               <p className="text-xs" style={{ color: 'var(--success)' }}>
                 Approved and paid {formatDate(milestone.approvedAt)}
               </p>
             )}
 
-            {/* Contributor: submit delivery */}
-            {canSubmit && (
+            {/* ── Contributor: submit delivery form ────────── */}
+            {canSubmit && !isSubmitPending && !isSubmitConfirming && (
               <div className="space-y-2">
                 <p className="text-xs font-medium" style={{ color: 'var(--ink)' }}>Submit your delivery</p>
                 <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                  Paste a URL, IPFS CID, or description. It will be hashed and stored onchain.
+                  Paste a URL, IPFS CID, or description — it will be hashed and stored onchain as proof.
                 </p>
                 <div className="flex gap-2">
                   <input
@@ -193,44 +220,66 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
               </div>
             )}
 
-            {/* Client: approve or dispute */}
+            {/* ── Client: approve or dispute ───────────────── */}
             {(canApprove || canDispute) && (
-              <div className="flex gap-2">
-                {canApprove && (
-                  <TxButton
-                    label="Approve & Release"
-                    isPending={isApprovePending}
-                    isConfirming={isApproveConfirming}
-                    onClick={() => approveMilestone({
-                      address: FLOWWORK_ADDRESS,
-                      abi: FLOWWORK_ABI,
-                      functionName: 'approveMilestone',
-                      args: [agreement.id, BigInt(index)],
-                      chainId: ARC_TESTNET_CHAIN_ID,
-                    })}
-                    fullWidth
-                  />
+              <div className="space-y-2">
+                {(isApprovePending || isApproveConfirming || isDisputePending || isDisputeConfirming) && (
+                  <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--muted)' }}>
+                    <div
+                      className="size-3.5 rounded-full border-2 border-transparent animate-spin flex-shrink-0"
+                      style={{ borderTopColor: 'var(--accent)' }}
+                    />
+                    {isApprovePending || isApproveConfirming ? 'Processing approval…' : 'Submitting dispute…'}
+                  </div>
                 )}
-                {canDispute && (
-                  <TxButton
-                    label="Dispute"
-                    variant="outline"
-                    isPending={isDisputePending}
-                    isConfirming={isDisputeConfirming}
-                    onClick={() => disputeMilestone({
-                      address: FLOWWORK_ADDRESS,
-                      abi: FLOWWORK_ABI,
-                      functionName: 'disputeMilestone',
-                      args: [agreement.id, BigInt(index)],
-                      chainId: ARC_TESTNET_CHAIN_ID,
-                    })}
-                    fullWidth
-                  />
-                )}
+                <div className="flex gap-2">
+                  {canApprove && (
+                    <TxButton
+                      label="Approve & Release"
+                      isPending={isApprovePending}
+                      isConfirming={isApproveConfirming}
+                      onClick={() => approveMilestone({
+                        address: FLOWWORK_ADDRESS,
+                        abi: FLOWWORK_ABI,
+                        functionName: 'approveMilestone',
+                        args: [agreement.id, BigInt(index)],
+                        chainId: ARC_TESTNET_CHAIN_ID,
+                      })}
+                      fullWidth
+                    />
+                  )}
+                  {canDispute && (
+                    <TxButton
+                      label="Dispute"
+                      variant="outline"
+                      isPending={isDisputePending}
+                      isConfirming={isDisputeConfirming}
+                      onClick={() => disputeMilestone({
+                        address: FLOWWORK_ADDRESS,
+                        abi: FLOWWORK_ABI,
+                        functionName: 'disputeMilestone',
+                        args: [agreement.id, BigInt(index)],
+                        chainId: ARC_TESTNET_CHAIN_ID,
+                      })}
+                      fullWidth
+                    />
+                  )}
+                </div>
               </div>
             )}
 
-            {/* Explorer links for tx hashes */}
+            {/* ── Explorer links ───────────────────────────── */}
+            {submitHash && (
+              <a
+                href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, submitHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs hover:opacity-70"
+                style={{ color: 'var(--accent)' }}
+              >
+                <ExternalLink className="size-3" /> View submission on ArcScan
+              </a>
+            )}
             {approveHash && (
               <a
                 href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, approveHash)}
@@ -239,7 +288,7 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
                 className="flex items-center gap-1 text-xs hover:opacity-70"
                 style={{ color: 'var(--success)' }}
               >
-                <ExternalLink className="size-3" /> View on ArcScan
+                <ExternalLink className="size-3" /> View approval on ArcScan
               </a>
             )}
           </div>
