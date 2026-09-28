@@ -2,6 +2,7 @@ import { LayoutDashboard, FileText, PlusCircle, User, Sun, Moon } from 'lucide-r
 import { ConnectKitButton } from 'connectkit'
 import { AppView } from '@/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Footer } from '@/components/Footer'
 import { useTheme } from '@/hooks/useTheme'
 
 function MobileThemeToggleSlot() {
@@ -35,7 +36,7 @@ const NAV_ITEMS: { view: AppView; label: string; icon: typeof LayoutDashboard }[
 
 export function Layout({ children, view, onNav }: LayoutProps) {
   return (
-    <div className="min-h-dvh" style={{ background: 'var(--bg-gradient)' }}>
+    <div className="min-h-dvh flex flex-col" style={{ background: 'var(--bg-gradient)' }}>
       {/* ── Top bar ────────────────────────────────────────── */}
       <header
         className="fw-topbar sticky top-0 z-40 border-b"
@@ -100,7 +101,10 @@ export function Layout({ children, view, onNav }: LayoutProps) {
       </header>
 
       {/* ── Main content ───────────────────────────────────── */}
-      <main>{children}</main>
+      <main className="flex-1">{children}</main>
+
+      {/* ── Footer (desktop only) ──────────────────────────── */}
+      <Footer onNav={onNav} />
 
       {/* ── Mobile bottom nav ──────────────────────────────── */}
       <nav
