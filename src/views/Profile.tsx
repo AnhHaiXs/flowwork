@@ -1,7 +1,7 @@
+import { useEffect, useState } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ConnectKitButton } from 'connectkit'
 import { ExternalLink, Copy, CheckCheck } from 'lucide-react'
-import { useState } from 'react'
 import { toast } from 'sonner'
 import { WalletGate } from '@/components/WalletGate'
 import { useClientAgreements, useContributorAgreements, useAgreements, useUsdcBalance, usePendingWithdrawals } from '@/hooks/useFlowWork'
@@ -29,8 +29,13 @@ export function Profile() {
   const { writeContract: doWithdraw, data: withdrawHash, isPending: isWithdrawPending, error: withdrawError } = useWriteContract()
   const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawSuccess } = useWaitForTransactionReceipt({ hash: withdrawHash })
 
-  if (isWithdrawSuccess) { toast.success('USDC withdrawn to your wallet!'); void refetchPending() }
-  if (withdrawError) toast.error(parseOnchainError(withdrawError))
+  useEffect(() => {
+    if (isWithdrawSuccess) { toast.success('USDC withdrawn to your wallet!'); void refetchPending() }
+  }, [isWithdrawSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (withdrawError) toast.error(parseOnchainError(withdrawError))
+  }, [withdrawError])
 
   // Reputation metrics
   const completedAsContributor = agreements.filter(

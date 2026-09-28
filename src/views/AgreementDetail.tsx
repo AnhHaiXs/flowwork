@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ArrowLeft, ExternalLink, User, Calendar, Clock, AlertTriangle, CheckCircle2, XCircle, Shield } from 'lucide-react'
 import { toast } from 'sonner'
@@ -39,10 +40,21 @@ export function AgreementDetail({ agreementId, onBack, onNav: _onNav }: Agreemen
   const { writeContract: cancelAgreement, data: cancelHash, isPending: isCancelPending, error: cancelError } = useWriteContract()
   const { isLoading: isCancelConfirming, isSuccess: isCancelSuccess } = useWaitForTransactionReceipt({ hash: cancelHash })
 
-  if (isAcceptSuccess) { toast.success('Agreement accepted — start delivering!'); void refetchAgreement() }
-  if (isCancelSuccess) { toast.success('Agreement cancelled — USDC refunded'); void refetchAgreement() }
-  if (acceptError) toast.error(parseOnchainError(acceptError))
-  if (cancelError) toast.error(parseOnchainError(cancelError))
+  useEffect(() => {
+    if (isAcceptSuccess) { toast.success('Agreement accepted — start delivering!'); void refetchAgreement() }
+  }, [isAcceptSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isCancelSuccess) { toast.success('Agreement cancelled — USDC refunded'); void refetchAgreement() }
+  }, [isCancelSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (acceptError) toast.error(parseOnchainError(acceptError))
+  }, [acceptError])
+
+  useEffect(() => {
+    if (cancelError) toast.error(parseOnchainError(cancelError))
+  }, [cancelError])
 
   function handleRefresh() {
     void refetchAgreement()

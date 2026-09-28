@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { CheckCircle2, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, Link } from 'lucide-react'
 import { toast } from 'sonner'
@@ -42,19 +42,26 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
   const { writeContract: disputeMilestone, data: disputeHash, isPending: isDisputePending } = useWriteContract()
   const { isLoading: isDisputeConfirming, isSuccess: isDisputeSuccess } = useWaitForTransactionReceipt({ hash: disputeHash })
 
-  if (isSubmitSuccess) {
-    toast.success('Delivery submitted — awaiting client review')
-    setDeliveryInput('')
-    onRefresh()
-  }
-  if (isApproveSuccess) {
-    toast.success(`Milestone approved — ${formatUsdc(milestone.amount)} USDC released`)
-    onRefresh()
-  }
-  if (isDisputeSuccess) {
-    toast('Milestone disputed — arbiter notified')
-    onRefresh()
-  }
+  useEffect(() => {
+    if (isSubmitSuccess) {
+      toast.success('Delivery submitted — awaiting client review')
+      onRefresh()
+    }
+  }, [isSubmitSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isApproveSuccess) {
+      toast.success(`Milestone approved — ${formatUsdc(milestone.amount)} USDC released`)
+      onRefresh()
+    }
+  }, [isApproveSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isDisputeSuccess) {
+      toast('Milestone disputed — arbiter notified')
+      onRefresh()
+    }
+  }, [isDisputeSuccess]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const deliveryHashHex = milestone.deliveryHash
   const hasDelivery = deliveryHashHex && deliveryHashHex !== '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -62,6 +69,7 @@ export function MilestoneRow({ milestone, index, agreement, onRefresh }: Milesto
   function handleSubmit() {
     if (!isValidDeliveryHash(deliveryInput)) return
     const hash = encodeDeliveryHash(deliveryInput)
+    setDeliveryInput('')
     submitDelivery({
       address: FLOWWORK_ADDRESS,
       abi: FLOWWORK_ABI,
