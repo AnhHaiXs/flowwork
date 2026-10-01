@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, PlusCircle, User, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, FileText, PlusCircle, User, Sun, Moon, BookOpen } from 'lucide-react'
 import { ConnectKitButton } from 'connectkit'
 import { AppView } from '@/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -32,6 +32,7 @@ const NAV_ITEMS: { view: AppView; label: string; icon: typeof LayoutDashboard }[
   { view: 'agreements', label: 'Agreements', icon: FileText },
   { view: 'create', label: 'New', icon: PlusCircle },
   { view: 'profile', label: 'Profile', icon: User },
+  { view: 'docs', label: 'Docs', icon: BookOpen },
 ]
 
 export function Layout({ children, view, onNav }: LayoutProps) {

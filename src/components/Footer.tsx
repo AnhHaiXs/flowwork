@@ -1,4 +1,4 @@
-import { ExternalLink, Github, Twitter, Shield, FileText, Zap } from 'lucide-react'
+import { ExternalLink, Github, Twitter, Shield, FileText, Zap, BookOpen } from 'lucide-react'
 import { AppView } from '@/types'
 import { FLOWWORK_ADDRESS, ARC_TESTNET_CHAIN_ID } from '@/contract'
 import { buildAddressExplorerUrl } from '@/onchain-facts'
@@ -138,6 +138,16 @@ export function Footer({ onNav }: FooterProps) {
                 </a>
               </li>
               <li>
+                <button
+                  onClick={() => onNav('docs')}
+                  className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity text-left"
+                  style={{ color: 'var(--muted)' }}
+                >
+                  <BookOpen className="size-3.5 flex-shrink-0" />
+                  Documentation
+                </button>
+              </li>
+              <li>
                 <a
                   href="https://github.com/AnhHaiXs/flowwork/tree/main/docs"
                   target="_blank"
@@ -146,7 +156,7 @@ export function Footer({ onNav }: FooterProps) {
                   style={{ color: 'var(--muted)' }}
                 >
                   <FileText className="size-3.5 flex-shrink-0" />
-                  Documentation
+                  Markdown source
                   <ExternalLink className="size-3 opacity-50" />
                 </a>
               </li>

@@ -6,6 +6,7 @@ import { AgreementList } from './views/AgreementList'
 import { CreateAgreement } from './views/CreateAgreement'
 import { AgreementDetail } from './views/AgreementDetail'
 import { Profile } from './views/Profile'
+import { DocsViewer } from './views/DocsViewer'
 
 export default function App() {
   const [view, setView] = useState<AppView>('dashboard')
@@ -46,6 +47,9 @@ export default function App() {
       )}
       {view === 'profile' && (
         <Profile />
+      )}
+      {view === 'docs' && (
+        <DocsViewer />
       )}
     </Layout>
   )

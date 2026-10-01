@@ -2,60 +2,79 @@
 
 ## Tổng quan
 
-FlowWork sử dụng **Arc Light Design System** — một hệ thống thiết kế tối giản, professional, được định nghĩa qua CSS custom properties (design tokens) và Tailwind utility classes. Không có component library bên ngoài (không dùng MUI, Chakra, shadcn, v.v.).
+FlowWork sử dụng **Arc Light / Arc Dark Design System** — một hệ thống thiết kế tối giản, professional, được định nghĩa qua CSS custom properties (design tokens) và Tailwind utility classes. Không có component library bên ngoài (không dùng MUI, Chakra, shadcn, v.v.).
+
+---
+
+## Dark Mode
+
+FlowWork hỗ trợ **Dark Mode / Light Mode** đầy đủ:
+
+- Toggle button (Sun/Moon) trong header và mobile bottom nav
+- Preference lưu vào `localStorage`
+- Nếu chưa chọn → tự detect `prefers-color-scheme` của hệ điều hành
+- Smooth transition 0.22s trên tất cả color properties
+
+### Cơ chế
+
+```css
+/* Light (default) */
+:root { --bg: #ffffff; --ink: #122d45; ... }
+
+/* Dark */
+[data-theme="dark"] { --bg: #0d1117; --ink: #e6edf3; ... }
+```
+
+`data-theme="dark"` được đặt trên `<html>` bởi `useTheme` hook.
 
 ---
 
 ## Design Tokens (CSS Variables)
 
-Tất cả tokens được khai báo trong `src/index.css` `:root {}`.
+Tất cả tokens khai báo trong `src/index.css`. Luôn dùng tokens — không hardcode hex trong JSX.
 
 ### Colors — Surfaces
 
-| Token | Giá trị | Sử dụng |
-|---|---|---|
-| `--bg` | `#ffffff` | Background trang |
-| `--bg-gradient` | linear-gradient 3 stop | Body background gradient |
-| `--surface` | `rgba(255,255,255,0.72)` | Card, panel background |
-| `--surface-strong` | `rgba(255,255,255,0.90)` | Input fields, elevated elements |
-| `--surface-muted` | `#f5f5f8` | Muted backgrounds, chips |
+| Token | Light | Dark | Sử dụng |
+|---|---|---|---|
+| `--bg` | `#ffffff` | `#0d1117` | Background trang |
+| `--bg-gradient` | gradient trắng-vàng | gradient đen-navy | Body background |
+| `--surface` | `rgba(255,255,255,0.72)` | `rgba(22,27,34,0.80)` | Card, panel |
+| `--surface-strong` | `rgba(255,255,255,0.90)` | `rgba(30,36,44,0.95)` | Inputs, elevated |
+| `--surface-muted` | `#f5f5f8` | `#161b22` | Muted backgrounds, chips |
 
 ### Colors — Text
 
-| Token | Giá trị | Sử dụng |
-|---|---|---|
-| `--ink` | `#122d45` | Primary text, headings |
-| `--ink-2` | `#334155` | Secondary text |
-| `--muted` | `#6b6580` | Body text, descriptions |
-| `--subtle` | `#8a849c` | Placeholders, labels, metadata |
+| Token | Light | Dark | Sử dụng |
+|---|---|---|---|
+| `--ink` | `#122d45` | `#e6edf3` | Primary text, headings |
+| `--ink-2` | `#334155` | `#c9d1d9` | Secondary text |
+| `--muted` | `#6b6580` | `#8b949e` | Body text, descriptions |
+| `--subtle` | `#8a849c` | `#6e7681` | Placeholders, labels, metadata |
 
 ### Colors — Borders
 
-| Token | Giá trị | Sử dụng |
+| Token | Light | Dark |
 |---|---|---|
-| `--border` | `rgba(18,45,69,0.12)` | Default border |
-| `--border-strong` | `rgba(25,53,77,0.50)` | Scrollbar, focused borders |
+| `--border` | `rgba(18,45,69,0.12)` | `rgba(240,246,252,0.12)` |
+| `--border-strong` | `rgba(25,53,77,0.50)` | `rgba(240,246,252,0.30)` |
 
 ### Colors — Semantic
 
-| Token | Giá trị | Sử dụng |
-|---|---|---|
-| `--accent` | `#122d45` | Primary CTA, buttons, links |
-| `--accent-hover` | `#1061a6` | Hover state cho accent |
-| `--focus` | `#85b1ed` | Focus ring |
-| `--success` | `#1a8047` | Approved, completed, positive |
-| `--danger` | `#ba2b4c` | Error, disputed, destructive |
-| `--warning` | `#b45309` | Warning, pending review |
+| Token | Light | Dark | Sử dụng |
+|---|---|---|---|
+| `--accent` | `#122d45` | `#4a9eff` | Primary CTA, buttons |
+| `--success` | `#1a8047` | `#34c472` | Approved, completed |
+| `--danger` | `#ba2b4c` | `#f4607a` | Error, disputed |
+| `--warning` | `#b45309` | `#f59e42` | Warning, pending review |
 
 ### Colors — Status badges
 
-| Token | Sử dụng |
-|---|---|
-| `--status-open` / `--status-open-bg` | Agreement Open |
-| `--status-active` / `--status-active-bg` | Agreement Active |
-| `--status-disputed-bg` | Agreement Disputed |
-| `--status-review` / `--status-review-bg` | Milestone Submitted/Review |
-| `--status-complete-bg` | Completed |
+| Token | Light | Dark |
+|---|---|---|
+| `--status-open` | `#1061a6` | `#4a9eff` |
+| `--status-active` | `#1a8047` | `#34c472` |
+| `--status-review` | `#b45309` | `#f59e42` |
 
 ---
 
@@ -89,13 +108,11 @@ body           → 'DM Sans', sans-serif        /* body text */
 </h1>
 ```
 
-Headings luôn dùng class `.display` + `letter-spacing: -0.02em` để có cảm giác tight, modern.
+Headings luôn dùng `.display` + `letter-spacing: -0.02em`.
 
 ---
 
 ## Spacing
-
-Dùng Tailwind spacing scale. Patterns thường gặp:
 
 | Pattern | Class | Dùng khi |
 |---|---|---|
@@ -161,8 +178,6 @@ Dùng Tailwind spacing scale. Patterns thường gặp:
 <input className="input-field w-full" placeholder="..." />
 ```
 
-Class `.input-field` định nghĩa sẵn trong `index.css`.
-
 ### Status Badge
 
 ```tsx
@@ -184,15 +199,11 @@ Class `.input-field` định nghĩa sẵn trong `index.css`.
 
 Tự động show loading spinner khi pending/confirming.
 
-### EmptyState
+### ThemeToggle
 
 ```tsx
-<EmptyState
-  icon={FileText}
-  title="No agreements yet"
-  description="Create your first onchain work agreement."
-  action={{ label: 'Create agreement', onClick: () => onNav('create') }}
-/>
+<ThemeToggle compact />     {/* icon-only, dùng trong header */}
+<ThemeToggle />             {/* label + icon, dùng standalone */}
 ```
 
 ---
@@ -200,17 +211,32 @@ Tự động show loading spinner khi pending/confirming.
 ## Layout
 
 ### Desktop
-- Sidebar navigation (ẩn, chỉ dùng header)
-- Max-width container căn giữa
-- Content area: max-w-2xl hoặc max-w-4xl tùy view
+- Header sticky: logo + nav + theme toggle + ConnectKit button
+- Max-width container căn giữa (max-w-2xl hoặc max-w-4xl)
+- Footer 4 columns: Brand, Product, Resources, Onchain
 
 ### Mobile
-- Bottom navigation bar cố định (Dashboard, Agreements, Create, Profile)
-- `pb-24` để tránh nội dung bị che
+- Bottom navigation bar cố định (Overview, Agreements, New, Profile, Theme toggle)
+- `pb-24` để tránh nội dung bị che bởi bottom nav
+- Footer ẩn trên mobile (dùng `hidden md:block`)
 
 ### Header
-- Logo "FlowWork" + ConnectKit wallet button
-- Không có navigation links ở header trên mobile
+- Logo "FlowWork" + desktop nav + ThemeToggle (compact) + ConnectKit button
+- Sticky top, backdrop blur, border bottom
+
+---
+
+## CSS Transition (Dark Mode)
+
+```css
+*, *::before, *::after {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke;
+  transition-duration: 0.22s;
+  transition-timing-function: ease;
+}
+```
+
+Chỉ transition color properties — không transition transforms hay opacity để tránh jank.
 
 ---
 
@@ -219,16 +245,19 @@ Tự động show loading spinner khi pending/confirming.
 - **Transitions:** `transition-colors`, `transition-all duration-500` (progress bar)
 - **Hover:** `hover:opacity-70` cho links, `hover:bg-black/5` cho ghost buttons
 - **Loading spinner:** `animate-spin`, border trick với `border-transparent` + `borderTopColor: accent`
+- **Pulse dot:** `animate-pulse` cho network status indicator
 - **Expandable rows:** State toggle, không có animation (clean, không rối)
 
 ---
 
 ## Nguyên tắc UX
 
-1. **Context-aware actions:** Chỉ hiển thị action phù hợp với role và trạng thái hiện tại. Client không thấy "Submit delivery". Contributor không thấy "Approve".
-2. **Onchain feedback:** Sau mỗi giao dịch, hiển thị toast + explorer link. Người dùng luôn biết chuyện gì đã xảy ra.
-3. **Progressive disclosure:** Milestone rows collapse by default, expand khi cần. Tránh information overload.
-4. **Empty states có hành động:** Mọi empty state đều có CTA rõ ràng để user biết phải làm gì.
+1. **Context-aware actions:** Chỉ hiển thị action phù hợp với role và trạng thái. Client không thấy "Submit delivery". Contributor không thấy "Approve".
+2. **Onchain feedback:** Sau mỗi giao dịch, hiển thị toast + explorer link. Người dùng luôn biết chuyện gì xảy ra.
+3. **Progressive disclosure:** Milestone rows collapse by default, expand khi cần.
+4. **Empty states có hành động:** Mọi empty state đều có CTA rõ ràng.
 5. **Error messages human-friendly:** `parseOnchainError()` chuyển raw EVM error thành thông báo dễ hiểu.
-6. **Disable khi không hợp lệ:** Buttons bị disable khi form validation chưa pass — không cho phép submit sai.
-7. **Tiền luôn rõ ràng:** Mọi số tiền USDC đều hiển thị với 2 chữ số thập phân + USDC icon (`TokenUSDC`).
+6. **Disable khi không hợp lệ:** Buttons bị disable khi form validation chưa pass.
+7. **Tiền luôn rõ ràng:** Mọi số tiền USDC hiển thị với 2 chữ số thập phân + USDC icon.
+8. **Dark mode không là afterthought:** Tất cả tokens có dark variant, contrast đủ theo WCAG AA.
+9. **Tx feedback rõ ràng:** "Waiting for wallet..." → "Submitting onchain..." → toast success.

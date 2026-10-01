@@ -4,20 +4,22 @@
 
 FlowWork là một ứng dụng escrow phi tập trung (dApp) chạy trên **Arc Testnet**, cho phép hai bên (client và contributor) ký kết và thực thi hợp đồng công việc hoàn toàn onchain thông qua USDC.
 
-Vấn đề cốt lõi mà FlowWork giải quyết:
+### Vấn đề cốt lõi
 
-- **Freelancer bị quỵt tiền** sau khi hoàn thành công việc, vì không có cơ chế đảm bảo thanh toán.
-- **Client bị mất tiền cọc** khi contributor không giao hàng và biến mất.
-- **Không có bằng chứng onchain** về việc giao hàng hay thanh toán.
-- **Tranh chấp thiếu trọng tài minh bạch** — mọi thứ diễn ra off-chain, dễ gian lận.
+| Vấn đề | Hiện tại | FlowWork giải quyết |
+|---|---|---|
+| Freelancer bị quỵt tiền | Không có cơ chế đảm bảo | USDC lock trước, chỉ release khi approve |
+| Client mất tiền cọc | Contributor biến mất | Cancellation refund khi Open/sau deadline |
+| Không có bằng chứng giao hàng | Thoả thuận miệng, off-chain | Delivery hash onchain, bất biến |
+| Tranh chấp không minh bạch | Không có trọng tài trung lập | Arbiter onchain, phán quyết onchain |
 
-FlowWork giải quyết bằng cách:
+### Cách FlowWork giải quyết
 
 1. Client lock USDC vào smart contract escrow ngay khi tạo agreement.
-2. USDC chỉ được giải phóng khi client approve từng milestone cụ thể.
+2. USDC chỉ được giải phóng khi client approve từng milestone.
 3. Contributor submit delivery hash onchain — bằng chứng vĩnh viễn, không thể giả mạo.
-4. Nếu tranh chấp, một arbiter độc lập có quyền phán quyết (approve hoặc giữ lại).
-5. Mọi hành động đều là giao dịch onchain, hoàn toàn minh bạch và kiểm chứng được.
+4. Nếu tranh chấp, arbiter độc lập có quyền phán quyết.
+5. Mọi hành động là giao dịch onchain, hoàn toàn minh bạch và kiểm chứng được.
 
 ---
 
@@ -25,7 +27,7 @@ FlowWork giải quyết bằng cách:
 
 > "Biến mọi hợp đồng công việc thành một thỏa thuận bất biến giữa hai địa chỉ ví — không cần tin tưởng, không cần trung gian, chỉ cần code."
 
-**Đối tượng người dùng mục tiêu:**
+### Đối tượng người dùng
 
 | Vai trò | Mô tả |
 |---|---|
@@ -35,18 +37,22 @@ FlowWork giải quyết bằng cách:
 
 ---
 
-## Phạm vi MVP
+## Phạm vi MVP (đã ship)
 
-- Tạo agreement với tối đa 5 milestones, mỗi milestone có số USDC riêng
-- Contributor accept agreement onchain
-- Contributor submit delivery hash (URL, IPFS CID, text) cho từng milestone
-- Client approve từng milestone, giải phóng USDC (pull-payment)
-- Client dispute milestone nếu có arbiter được chỉ định
-- Arbiter phán quyết milestone bị dispute
-- Client hủy agreement (khi Open hoặc Active sau deadline)
-- Client force-close dispute sau 30 ngày arbiter không hành động
-- Rút USDC về ví (pull-payment pattern)
-- Dashboard thống kê: balance, active/completed count, in-escrow USDC
+- [x] Tạo agreement với tối đa 5 milestones, mỗi milestone có số USDC riêng
+- [x] Contributor accept agreement onchain
+- [x] Contributor submit delivery hash (URL, IPFS CID, text) cho từng milestone
+- [x] Client approve từng milestone, giải phóng USDC (pull-payment)
+- [x] Client dispute milestone nếu có arbiter được chỉ định
+- [x] Arbiter phán quyết milestone bị dispute
+- [x] Client hủy agreement (khi Open hoặc Active sau deadline)
+- [x] Client force-close dispute sau 30 ngày arbiter không hành động
+- [x] Rút USDC về ví (pull-payment pattern via `withdraw()`)
+- [x] Dashboard thống kê: balance, active/completed count, in-escrow USDC
+- [x] Dark mode / Light mode với system preference detection
+- [x] Footer 4 columns với onchain info
+- [x] Vercel Analytics
+- [x] Tài liệu đầy đủ tại `/docs`
 
 ---
 
@@ -58,3 +64,15 @@ FlowWork giải quyết bằng cách:
 - Không có mainnet (chỉ Arc Testnet)
 - Không có file storage (chỉ hash/URL, không lưu file thực)
 - Không có notifications real-time (không có backend)
+- Không có contributor inaction timeout (audit finding được chấp nhận — xem `03-smart-contract.md`)
+
+---
+
+## Contract đã deploy
+
+| | |
+|---|---|
+| Network | Arc Testnet |
+| Address | `0x7bde6df4d2f103b69d1f4ae10f8f0f743a424ce7` |
+| ArcScan | https://explorer.testnet.arc.io/address/0x7bde6df4d2f103b69d1f4ae10f8f0f743a424ce7 |
+| Source | `contracts/FlowWork.sol` |

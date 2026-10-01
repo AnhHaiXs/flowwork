@@ -41,7 +41,7 @@ export interface Milestone {
   approvedAt: bigint
 }
 
-export type AppView = 'dashboard' | 'agreements' | 'create' | 'detail' | 'profile'
+export type AppView = 'dashboard' | 'agreements' | 'create' | 'detail' | 'profile' | 'docs'
 
 export interface CreateAgreementForm {
   contributor: string

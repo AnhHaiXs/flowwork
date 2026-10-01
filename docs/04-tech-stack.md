@@ -30,7 +30,7 @@
 | Foundry (forge) | latest | Compile + test |
 | OpenZeppelin Contracts | 5.1.0 | ReentrancyGuard, IERC20, SafeERC20 |
 
-> OpenZeppelin bị pin ở 5.1.0 vì từ 5.2.0 có `mcopy` opcode (Cancun EVM) không tương thích với Arc Testnet (Paris EVM target).
+> OpenZeppelin pin ở 5.1.0 vì từ 5.2.0 có `mcopy` opcode (Cancun EVM) không tương thích với Arc Testnet (Paris EVM target).
 
 ## UI Components
 
@@ -39,6 +39,7 @@
 | lucide-react | Icon set (size, stroke-based SVG) |
 | sonner | Toast notifications |
 | framer-motion | Có sẵn (chưa dùng, sẵn sàng cho animation) |
+| @vercel/analytics | Page view analytics |
 
 ## Dev Tools
 
@@ -58,6 +59,7 @@
 | Native gas | USDC (Arc đặc biệt: gas token = USDC) |
 | USDC ERC-20 | `0x3600000000000000000000000000000000000000` |
 | USDC Decimals | 6 |
+| FlowWork Contract | `0x7bde6df4d2f103b69d1f4ae10f8f0f743a424ce7` |
 | Explorer | https://explorer.testnet.arc.io |
 
 ## Project structure
@@ -66,33 +68,49 @@
 /home/user/app/
 ├── src/
 │   ├── App.tsx                   # Router/shell (thin composition root)
-│   ├── main.tsx                  # Entry point, providers
+│   ├── main.tsx                  # Entry point, providers (ThemeProvider + Analytics)
 │   ├── config.ts                 # wagmi config (chains, connectors)
-│   ├── contract.ts               # ABI + contract address constants
+│   ├── contract.ts               # ABI + contract address constants (inline)
 │   ├── types.ts                  # Domain types (Agreement, Milestone, enums, AppView)
 │   ├── utils.ts                  # Pure helpers (format, parse, encode)
 │   ├── onchain-facts.ts          # Chain/token registry (generated)
 │   ├── onchain-money.ts          # Amount parsing/formatting (generated)
 │   ├── onchain-wait.ts           # Transaction state machine (generated)
-│   ├── index.css                 # Tailwind + design tokens (CSS vars)
+│   ├── index.css                 # Tailwind + design tokens (CSS vars, dark mode)
 │   ├── components/
-│   │   ├── Layout.tsx            # Shell: header + mobile bottom nav
+│   │   ├── Layout.tsx            # Shell: header + footer + mobile bottom nav
+│   │   ├── Footer.tsx            # Desktop footer (4-column)
 │   │   ├── WalletGate.tsx        # HOC: require connected wallet
 │   │   ├── AgreementCard.tsx     # Summary card cho list/dashboard
-│   │   ├── MilestoneRow.tsx      # Expandable row với actions
+│   │   ├── MilestoneRow.tsx      # Expandable row với actions + tx feedback
 │   │   ├── StatusBadge.tsx       # Agreement/Milestone status pills
 │   │   ├── TxButton.tsx          # Button với pending/confirming states
-│   │   └── EmptyState.tsx        # Empty state pattern
+│   │   ├── EmptyState.tsx        # Empty state pattern
+│   │   ├── ThemeProvider.tsx     # Dark/light mode context provider
+│   │   └── ThemeToggle.tsx       # Sun/Moon toggle button (compact + full)
+│   ├── hooks/
+│   │   ├── useFlowWork.ts        # Contract read hooks
+│   │   └── useTheme.ts           # Dark mode: localStorage + prefers-color-scheme
 │   └── views/
 │       ├── Dashboard.tsx         # F1: Overview + stats
 │       ├── AgreementList.tsx     # F2: Danh sách + filter
 │       ├── CreateAgreement.tsx   # F3: Form tạo agreement
 │       ├── AgreementDetail.tsx   # F4: Chi tiết + actions
-│       └── Profile.tsx           # F6: Ví + withdraw
+│       ├── Profile.tsx           # F6: Ví + withdraw
+│       └── DocsViewer.tsx        # Tài liệu dự án (accessible tại /docs)
 ├── contracts/
 │   ├── FlowWork.sol              # Smart contract chính
-│   └── out/FlowWork.sol/         # Foundry artifacts
-├── docs/                         # Project documentation (đây)
+│   ├── test/FlowWork.t.sol       # 57 Foundry unit tests
+│   └── out/FlowWork.sol/         # Foundry artifacts (gitignored)
+├── docs/                         # Project documentation (markdown)
+│   ├── README.md
+│   ├── 01-project-overview.md
+│   ├── 02-features.md
+│   ├── 03-smart-contract.md
+│   ├── 04-tech-stack.md
+│   ├── 05-design-system.md
+│   ├── 06-coding-standards.md
+│   └── 07-changelog.md
 ├── AGENTS.md                     # Project memory (Arc Studio)
 └── package.json
 ```
