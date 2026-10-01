@@ -12,23 +12,26 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+    <div
+      className="rounded-2xl border flex flex-col items-center justify-center py-20 px-6 text-center"
+      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+    >
       <div
-        className="size-14 rounded-2xl flex items-center justify-center mb-4"
+        className="size-16 rounded-2xl flex items-center justify-center mb-5"
         style={{ background: 'var(--surface-muted)', color: 'var(--subtle)' }}
       >
-        <Icon className="size-7" />
+        <Icon className="size-8" />
       </div>
-      <h3 className="text-base font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>
+      <h3 className="display text-lg font-700 mb-2" style={{ color: 'var(--ink)', letterSpacing: '-0.01em' }}>
         {title}
       </h3>
-      <p className="text-sm max-w-xs" style={{ color: 'var(--muted)' }}>
+      <p className="text-sm max-w-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
         {description}
       </p>
       {action && (
         <button
           onClick={action.onClick}
-          className="mt-5 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+          className="mt-6 px-6 py-3 rounded-xl text-sm font-semibold text-white"
           style={{ background: 'var(--accent)' }}
         >
           {action.label}

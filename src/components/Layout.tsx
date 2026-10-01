@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, PlusCircle, User, Sun, Moon, BookOpen } from 'lucide-react'
+import { LayoutDashboard, FileText, PlusCircle, User, Sun, Moon, BookOpen, Zap } from 'lucide-react'
 import { ConnectKitButton } from 'connectkit'
 import { AppView } from '@/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -31,76 +31,133 @@ interface LayoutProps {
 const NAV_ITEMS: { view: AppView; label: string; icon: typeof LayoutDashboard }[] = [
   { view: 'dashboard', label: 'Overview', icon: LayoutDashboard },
   { view: 'agreements', label: 'Agreements', icon: FileText },
-  { view: 'create', label: 'New', icon: PlusCircle },
+  { view: 'create', label: 'New agreement', icon: PlusCircle },
   { view: 'profile', label: 'Profile', icon: User },
   { view: 'docs', label: 'Docs', icon: BookOpen },
 ]
 
+const MOBILE_NAV = NAV_ITEMS.filter((i) => i.view !== 'docs')
+
 export function Layout({ children, view, onNav }: LayoutProps) {
   return (
     <div className="min-h-dvh flex flex-col" style={{ background: 'var(--bg-gradient)' }}>
-      {/* ── Top bar ────────────────────────────────────────── */}
+
+      {/* ── Mobile top bar ────────────────────────────────────────── */}
       <header
-        className="fw-topbar sticky top-0 z-40 border-b"
+        className="fw-topbar lg:hidden sticky top-0 z-40 border-b"
         style={{
-          background: 'rgba(255,255,255,0.82)',
+          background: 'rgba(255,255,255,0.88)',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           borderColor: 'var(--border)',
         }}
       >
-        <div className="max-w-5xl mx-auto px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <button
-            onClick={() => onNav('dashboard')}
-            className="hover:opacity-80 transition-opacity"
-          >
+        <div className="px-4 h-14 flex items-center justify-between gap-4">
+          <button onClick={() => onNav('dashboard')} className="hover:opacity-80 transition-opacity">
             <FlowWorkLogo size="md" />
           </button>
-
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-0.5">
-            {NAV_ITEMS.filter((i) => i.view !== 'create').map(({ view: v, label, icon: Icon }) => (
-              <button
-                key={v}
-                onClick={() => onNav(v)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                style={{
-                  color: view === v || (view === 'detail' && v === 'agreements') ? 'var(--ink)' : 'var(--subtle)',
-                  background: view === v || (view === 'detail' && v === 'agreements') ? 'var(--surface-muted)' : 'transparent',
-                }}
-              >
-                <Icon className="size-4" />
-                {label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Right: theme toggle + connect + new */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => onNav('create')}
-              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-semibold text-white"
-              style={{ background: 'var(--accent)', transition: 'background 0.22s ease' }}
-            >
-              <PlusCircle className="size-4" />
-              New
-            </button>
             <ThemeToggle compact />
             <ConnectKitButton />
           </div>
         </div>
       </header>
 
-      {/* ── Main content ───────────────────────────────────── */}
-      <main className="flex-1">{children}</main>
+      {/* ── Desktop shell ─────────────────────────────────────────── */}
+      <div className="hidden lg:flex flex-1 min-h-dvh">
 
-      {/* ── Footer (desktop only) ──────────────────────────── */}
-      <Footer onNav={onNav} />
+        {/* Sidebar */}
+        <aside
+          className="w-60 xl:w-64 flex-shrink-0 flex flex-col sticky top-0 h-screen overflow-y-auto border-r"
+          style={{
+            background: 'var(--surface-strong)',
+            borderColor: 'var(--border)',
+          }}
+        >
+          {/* Logo */}
+          <div className="px-5 pt-6 pb-4">
+            <button onClick={() => onNav('dashboard')} className="hover:opacity-80 transition-opacity">
+              <FlowWorkLogo size="md" />
+            </button>
+          </div>
 
-      {/* ── Mobile bottom nav ──────────────────────────────── */}
+          {/* Nav */}
+          <nav className="flex-1 px-3 space-y-0.5">
+            {NAV_ITEMS.map(({ view: v, label, icon: Icon }) => {
+              const isActive = view === v || (view === 'detail' && v === 'agreements')
+              return (
+                <button
+                  key={v}
+                  onClick={() => onNav(v)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-left transition-colors"
+                  style={{
+                    background: isActive ? 'var(--surface-muted)' : 'transparent',
+                    color: isActive ? 'var(--ink)' : 'var(--muted)',
+                  }}
+                >
+                  <Icon
+                    className="size-4 flex-shrink-0"
+                    style={{ color: isActive ? 'var(--accent)' : 'var(--subtle)' }}
+                  />
+                  {label}
+                </button>
+              )
+            })}
+          </nav>
+
+          {/* Sidebar bottom */}
+          <div
+            className="px-3 py-4 border-t space-y-2"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            {/* New agreement CTA */}
+            <button
+              onClick={() => onNav('create')}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-white"
+              style={{ background: 'var(--accent)' }}
+            >
+              <PlusCircle className="size-4" />
+              New agreement
+            </button>
+
+            {/* Theme + Connect */}
+            <div className="flex items-center gap-2 pt-1">
+              <ThemeToggle compact />
+              <div className="flex-1 min-w-0">
+                <ConnectKitButton />
+              </div>
+            </div>
+
+            {/* Network badge */}
+            <div
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg"
+              style={{ background: 'var(--status-active-bg)' }}
+            >
+              <Zap className="size-3 flex-shrink-0" style={{ color: 'var(--status-active)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--status-active)' }}>
+                Arc Testnet
+              </span>
+              <div
+                className="size-1.5 rounded-full animate-pulse ml-auto"
+                style={{ background: 'var(--status-active)' }}
+              />
+            </div>
+          </div>
+        </aside>
+
+        {/* Main area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <main className="flex-1">{children}</main>
+          <Footer onNav={onNav} />
+        </div>
+      </div>
+
+      {/* ── Mobile main content ───────────────────────────────────── */}
+      <main className="lg:hidden flex-1">{children}</main>
+
+      {/* ── Mobile bottom nav ──────────────────────────────────────── */}
       <nav
-        className="fw-mobile-nav fixed bottom-0 left-0 right-0 md:hidden border-t z-40"
+        className="fw-mobile-nav fixed bottom-0 left-0 right-0 lg:hidden border-t z-40"
         style={{
           background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(20px)',
@@ -109,7 +166,7 @@ export function Layout({ children, view, onNav }: LayoutProps) {
         }}
       >
         <div className="flex items-stretch h-16">
-          {NAV_ITEMS.map(({ view: v, label, icon: Icon }) => (
+          {MOBILE_NAV.map(({ view: v, label, icon: Icon }) => (
             <button
               key={v}
               onClick={() => onNav(v)}
@@ -122,10 +179,9 @@ export function Layout({ children, view, onNav }: LayoutProps) {
               }}
             >
               <Icon className="size-5" />
-              <span className="text-xs font-medium">{label}</span>
+              <span className="text-xs font-medium">{label === 'New agreement' ? 'New' : label}</span>
             </button>
           ))}
-          {/* Theme toggle slot — rendered as a nav-style item on mobile */}
           <MobileThemeToggleSlot />
         </div>
       </nav>

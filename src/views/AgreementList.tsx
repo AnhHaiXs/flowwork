@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
-import { PlusCircle, Search, FileText } from 'lucide-react'
+import { PlusCircle, Search, FileText, SlidersHorizontal } from 'lucide-react'
 import { AppView, AgreementStatus } from '@/types'
 import { WalletGate } from '@/components/WalletGate'
 import { AgreementCard } from '@/components/AgreementCard'
@@ -13,7 +13,7 @@ interface AgreementListProps {
 }
 
 type FilterTab = 'all' | 'as-client' | 'as-contributor'
-type StatusFilter = 'all' | 'active' | 'completed' | 'disputed'
+type StatusFilter = 'all' | 'active' | 'completed' | 'disputed' | 'open'
 
 export function AgreementList({ onNav, onSelectAgreement }: AgreementListProps) {
   const { address } = useAccount()
@@ -33,87 +33,108 @@ export function AgreementList({ onNav, onSelectAgreement }: AgreementListProps) 
 
   const { data: agreements = [] } = useAgreements(idsForTab)
 
-  // Filter
   const filtered = agreements.filter((a) => {
     if (statusFilter === 'active' && a.status !== AgreementStatus.Active) return false
     if (statusFilter === 'completed' && a.status !== AgreementStatus.Completed) return false
     if (statusFilter === 'disputed' && a.status !== AgreementStatus.Disputed) return false
+    if (statusFilter === 'open' && a.status !== AgreementStatus.Open) return false
     if (search && !a.title.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
   const sorted = filtered.slice().sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
 
+  // Count by status
+  const counts = {
+    all: agreements.length,
+    active: agreements.filter((a) => a.status === AgreementStatus.Active).length,
+    open: agreements.filter((a) => a.status === AgreementStatus.Open).length,
+    completed: agreements.filter((a) => a.status === AgreementStatus.Completed).length,
+    disputed: agreements.filter((a) => a.status === AgreementStatus.Disputed).length,
+  }
+
   return (
     <WalletGate>
-      <div className="max-w-4xl mx-auto px-4 lg:px-6 py-6 pb-24 lg:pb-8 space-y-4">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
+      <div className="px-6 xl:px-10 py-8 pb-24 lg:pb-10 max-w-screen-2xl">
+
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <div className="flex items-start justify-between gap-6 mb-8">
           <div>
-            <h1 className="display text-2xl font-700" style={{ color: 'var(--ink)', letterSpacing: '-0.02em' }}>
+            <h1 className="display text-3xl font-700 mb-1" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>
               Agreements
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--muted)' }}>
-              {agreements.length} agreement{agreements.length !== 1 ? 's' : ''}
+            <p className="text-base" style={{ color: 'var(--muted)' }}>
+              {agreements.length} agreement{agreements.length !== 1 ? 's' : ''} total
             </p>
           </div>
           <button
             onClick={() => onNav('create')}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0"
+            className="hidden lg:flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white flex-shrink-0"
             style={{ background: 'var(--accent)' }}
           >
             <PlusCircle className="size-4" />
-            New
+            New agreement
           </button>
         </div>
 
-        {/* Tabs */}
+        {/* ── Filters bar ─────────────────────────────────────────── */}
         <div
-          className="flex rounded-xl p-1 gap-1"
-          style={{ background: 'var(--surface-muted)' }}
+          className="rounded-2xl border p-4 mb-6"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
         >
-          {(['all', 'as-client', 'as-contributor'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
-              style={{
-                background: tab === t ? 'var(--surface-strong)' : 'transparent',
-                color: tab === t ? 'var(--ink)' : 'var(--subtle)',
-                boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
-              }}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4" style={{ color: 'var(--subtle)' }} />
+              <input
+                type="text"
+                className="input-field w-full pl-10"
+                placeholder="Search agreements by title…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Role tab */}
+            <div
+              className="flex rounded-xl p-1 gap-0.5 flex-shrink-0"
+              style={{ background: 'var(--surface-muted)' }}
             >
-              {t === 'all' ? 'All' : t === 'as-client' ? 'As client' : 'As contributor'}
-            </button>
-          ))}
-        </div>
+              {(['all', 'as-client', 'as-contributor'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={{
+                    background: tab === t ? 'var(--surface-strong)' : 'transparent',
+                    color: tab === t ? 'var(--ink)' : 'var(--subtle)',
+                    boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
+                  }}
+                >
+                  {t === 'all' ? 'All roles' : t === 'as-client' ? 'As client' : 'As contributor'}
+                </button>
+              ))}
+            </div>
 
-        {/* Search + status filter row */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4" style={{ color: 'var(--subtle)' }} />
-            <input
-              type="text"
-              className="input-field w-full pl-9 text-sm"
-              placeholder="Search by title…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            {/* Status dropdown */}
+            <div className="relative flex-shrink-0">
+              <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 size-4 pointer-events-none" style={{ color: 'var(--subtle)' }} />
+              <select
+                className="input-field pl-9 pr-4 appearance-none cursor-pointer"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              >
+                <option value="all">All statuses ({counts.all})</option>
+                <option value="open">Open ({counts.open})</option>
+                <option value="active">Active ({counts.active})</option>
+                <option value="completed">Completed ({counts.completed})</option>
+                <option value="disputed">Disputed ({counts.disputed})</option>
+              </select>
+            </div>
           </div>
-          <select
-            className="input-field text-sm pr-8"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            style={{ minWidth: 'auto' }}
-          >
-            <option value="all">All statuses</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="disputed">Disputed</option>
-          </select>
         </div>
 
-        {/* List */}
+        {/* ── List ────────────────────────────────────────────────── */}
         {sorted.length === 0 ? (
           <EmptyState
             icon={FileText}
@@ -130,7 +151,11 @@ export function AgreementList({ onNav, onSelectAgreement }: AgreementListProps) 
             }
           />
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
+            <p className="text-xs font-medium" style={{ color: 'var(--subtle)' }}>
+              {sorted.length} result{sorted.length !== 1 ? 's' : ''}
+              {(search || statusFilter !== 'all' || tab !== 'all') ? ' (filtered)' : ''}
+            </p>
             {sorted.map((a) => (
               <AgreementCard
                 key={String(a.id)}

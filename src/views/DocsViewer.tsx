@@ -598,7 +598,7 @@ export function DocsViewer() {
   const active = DOCS.find((d) => d.id === activeId) ?? DOCS[0]
 
   return (
-    <div className="max-w-5xl mx-auto px-4 lg:px-6 py-6 pb-24 lg:pb-12">
+    <div className="px-6 xl:px-10 py-8 pb-24 lg:pb-10 max-w-screen-xl">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>

@@ -13,11 +13,11 @@ const YEAR = new Date().getFullYear()
 export function Footer({ onNav }: FooterProps) {
   return (
     <footer
-      className="hidden md:block border-t mt-auto"
+      className="border-t mt-auto"
       style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
     >
       {/* ── Main columns ─────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="px-6 xl:px-10 py-12 max-w-screen-2xl">
         <div className="grid grid-cols-4 gap-10">
 
           {/* Col 1 — Brand */}
@@ -209,7 +209,7 @@ export function Footer({ onNav }: FooterProps) {
         className="border-t"
         style={{ borderColor: 'var(--border)' }}
       >
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+        <div className="px-6 xl:px-10 py-4 max-w-screen-2xl flex items-center justify-between gap-4 flex-wrap">
           <p className="text-xs" style={{ color: 'var(--subtle)' }}>
             © {YEAR} FlowWork. Built on{' '}
             <a
