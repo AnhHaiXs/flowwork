@@ -4,6 +4,7 @@ import { AppView } from '@/types'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Footer } from '@/components/Footer'
 import { useTheme } from '@/hooks/useTheme'
+import { FlowWorkLogo } from '@/components/FlowWorkLogo'
 
 function MobileThemeToggleSlot() {
   const { theme, toggle } = useTheme()
@@ -52,19 +53,9 @@ export function Layout({ children, view, onNav }: LayoutProps) {
           {/* Logo */}
           <button
             onClick={() => onNav('dashboard')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="hover:opacity-80 transition-opacity"
           >
-            <div
-              className="size-7 rounded-lg flex items-center justify-center"
-              style={{ background: 'var(--accent)' }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7L5 10L12 3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <span className="display text-base font-700 hidden sm:block" style={{ color: 'var(--ink)', letterSpacing: '-0.02em' }}>
-              FlowWork
-            </span>
+            <FlowWorkLogo size="md" />
           </button>
 
           {/* Desktop nav */}

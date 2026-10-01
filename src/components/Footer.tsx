@@ -2,6 +2,7 @@ import { ExternalLink, Github, Twitter, Shield, FileText, Zap, BookOpen } from '
 import { AppView } from '@/types'
 import { FLOWWORK_ADDRESS, ARC_TESTNET_CHAIN_ID } from '@/contract'
 import { buildAddressExplorerUrl } from '@/onchain-facts'
+import { FlowWorkLogo } from '@/components/FlowWorkLogo'
 
 interface FooterProps {
   onNav: (v: AppView) => void
@@ -23,19 +24,9 @@ export function Footer({ onNav }: FooterProps) {
           <div className="col-span-1 space-y-4">
             <button
               onClick={() => onNav('dashboard')}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="hover:opacity-80 transition-opacity"
             >
-              <div
-                className="size-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: 'var(--accent)' }}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M2 7L5 10L12 3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <span className="display text-base font-700" style={{ color: 'var(--ink)', letterSpacing: '-0.02em' }}>
-                FlowWork
-              </span>
+              <FlowWorkLogo size="md" />
             </button>
 
             <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>

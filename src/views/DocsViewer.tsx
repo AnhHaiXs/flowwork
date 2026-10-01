@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BookOpen, ChevronRight, ExternalLink, FileText, Code2, Palette, Terminal, GitCommit, Layers, ArrowLeft } from 'lucide-react'
+import { FlowWorkLogo } from '@/components/FlowWorkLogo'
 
 // ── Inline document content ───────────────────────────────────────────────
 // Each doc section is self-contained so the viewer works without a backend.
@@ -599,16 +600,28 @@ export function DocsViewer() {
   return (
     <div className="max-w-5xl mx-auto px-4 lg:px-6 py-6 pb-24 lg:pb-12">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <BookOpen className="size-5" style={{ color: 'var(--accent)' }} />
-          <h1 className="display text-2xl font-700" style={{ color: 'var(--ink)', letterSpacing: '-0.02em' }}>
-            Documentation
-          </h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <FlowWorkLogo size="sm" markOnly />
+            <h1 className="display text-2xl font-700" style={{ color: 'var(--ink)', letterSpacing: '-0.02em' }}>
+              Documentation
+            </h1>
+          </div>
+          <p className="text-sm" style={{ color: 'var(--muted)' }}>
+            Tài liệu đầy đủ về thiết kế, kỹ thuật và vận hành của FlowWork
+          </p>
         </div>
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>
-          Tài liệu đầy đủ về thiết kế, kỹ thuật và vận hành của FlowWork
-        </p>
+        <a
+          href="https://github.com/AnhHaiXs/flowwork/tree/main/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border flex-shrink-0 hover:opacity-70 transition-opacity"
+          style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
+        >
+          <ExternalLink className="size-3" />
+          GitHub
+        </a>
       </div>
 
       <div className="flex gap-6">

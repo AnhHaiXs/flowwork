@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- FlowWork favicon: two parallel flow lines converging through a checkpoint node -->
+  <rect width="32" height="32" rx="8" fill="#122d45"/>
+  <!-- Upper flow arm -->
+  <path d="M5 11 L13 11 L16 16 L13 21 L5 21" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.55"/>
+  <!-- Lower flow arm -->
+  <path d="M13 11 L27 11" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M13 21 L27 21" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <!-- Checkpoint dot -->
+  <circle cx="16" cy="16" r="2.8" fill="white"/>
+</svg>
